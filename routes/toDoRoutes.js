@@ -9,6 +9,6 @@ const route = express.Router();
 
 route.route("/").get(getAllToDo).post(createToDo);
 
-route.route("/:id").patch(updateToDo).delete(deleteToDo);
+route.route("/:id").put(updateToDo).delete(deleteToDo);
 
 module.exports = route;
