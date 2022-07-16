@@ -1,67 +1,50 @@
 const ToDo = require("../models/toDoModel");
+const AppError = require("../utils/appError");
+const catchAsync = require("../utils/catchAsync");
 
-exports.getAllToDo = async (req, res) => {
-  try {
-    const todos = await ToDo.find();
-    res.status(200).json({
-      status: "success",
-      results: todos.length,
-      data: todos,
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error,
-    });
+exports.getAllToDo = catchAsync(async (req, res) => {
+  const todos = await ToDo.find();
+  res.status(200).json({
+    status: "success",
+    results: todos.length,
+    data: todos,
+  });
+});
+
+exports.createToDo = catchAsync(async (req, res) => {
+  const newToDo = await ToDo.create(req.body);
+  res.status(201).json({
+    status: "success",
+    data: newToDo,
+  });
+});
+
+exports.updateToDo = catchAsync(async (req, res) => {
+  const tour = await ToDo.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!tour) {
+    return next(new AppError("Todo not found", 404));
   }
-};
 
-exports.createToDo = async (req, res) => {
-  try {
-    const newToDo = await ToDo.create(req.body);
-    res.status(201).json({
-      status: "success",
-      data: newToDo,
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.mess,
-    });
+  res.status(200).json({
+    status: "success",
+    data: {
+      tour,
+    },
+  });
+});
+
+exports.deleteToDo = catchAsync(async (req, res) => {
+  const tour = await ToDo.findByIdAndDelete(req.params.id);
+
+  if (!tour) {
+    return next(new AppError("Todo not found", 404));
   }
-};
 
-exports.updateToDo = async (req, res) => {
-  try {
-    const tour = await ToDo.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    res.status(200).json({
-      status: "success",
-      data: {
-        tour,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error,
-    });
-  }
-};
-
-exports.deleteToDo = async (req, res) => {
-  try {
-    await ToDo.findByIdAndDelete(req.params.id);
-
-    res.status(204).json({
-      status: "success",
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error,
-    });
-  }
-};
+  res.status(204).json({
+    status: "success",
+  });
+});
